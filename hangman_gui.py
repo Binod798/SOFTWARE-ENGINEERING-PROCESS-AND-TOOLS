@@ -121,6 +121,21 @@ class HangmanGame:
         self.time_left = self.time_limit
         self.update_timer()
 
+    def animate_hangman(self, prev_lives):
+        """Animate hangman drawing when user guesses wrong"""
+        frames = []
+        for i in range(6 - prev_lives, 6 - self.lives + 1):
+            if i < len(HANGMAN_PICS):
+                frames.append(HANGMAN_PICS[i])
+        self.show_animation(frames, 0)
+
+    def show_animation(self, frames, idx):
+        if idx < len(frames):
+            self.hangman_label.config(text=frames[idx])
+            self.root.after(150, lambda: self.show_animation(frames, idx + 1))
+        else:
+            self.hangman_label.config(text=HANGMAN_PICS[6 - self.lives])
+
     def make_guess(self, event=None):
         guess = self.entry.get().lower().strip()
         self.entry.delete(0, tk.END)
@@ -133,16 +148,18 @@ class HangmanGame:
         if self.timer_id:
             self.root.after_cancel(self.timer_id)
 
+        prev_lives = self.lives
+
         if guess in self.word:
             for i, ch in enumerate(self.word):
                 if ch == guess:
                     self.display[i] = guess
             self.message_label.config(text=f"✅ Good guess! '{guess}' is in the word/phrase.", fg="green")
+            self.update_visuals()
         else:
             self.lives -= 1
             self.message_label.config(text=f"❌ Wrong guess! '{guess}' is not in the word/phrase.", fg="red")
-
-        self.update_visuals()
+            self.update_visuals(wrong_guess=True, prev_lives=prev_lives)
 
         if "_" not in self.display:
             self.end_game(True)
@@ -151,11 +168,14 @@ class HangmanGame:
         else:
             self.reset_turn()
 
-    def update_visuals(self):
+    def update_visuals(self, wrong_guess=False, prev_lives=None):
         """Update word, lives, hangman drawing"""
         self.word_label.config(text=" ".join(self.display))
         self.lives_label.config(text=f"Lives: {self.lives}")
-        self.hangman_label.config(text=HANGMAN_PICS[6 - self.lives])
+        if wrong_guess and prev_lives is not None:
+            self.animate_hangman(prev_lives)
+        else:
+            self.hangman_label.config(text=HANGMAN_PICS[6 - self.lives])
 
     def end_game(self, won):
         """Game over screen"""
