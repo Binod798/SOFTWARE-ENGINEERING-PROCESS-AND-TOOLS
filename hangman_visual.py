@@ -116,3 +116,77 @@ class HangmanApp(tk.Tk):
             fg="gray",
         )
         self.footer_label.pack(side=tk.BOTTOM, pady=10)
+        
+    def _bind_events(self) -> None:
+        self.bind("<Return>", lambda _e: self._on_guess())
+
+    #Refresh and update UI elements 
+    def _on_level_change(self) -> None:
+        value = self.level_var.get()
+        level = Level.BASIC if value == Level.BASIC.value else Level.INTERMEDIATE
+        self.game.choose_new_answer(level)
+        self.entry.config(state=tk.NORMAL)
+        self._reset_timer()
+        self._refresh_all()
+
+    def _new_game(self) -> None:
+        # Start a new game at current level
+        value = self.level_var.get()
+        level = Level.BASIC if value == Level.BASIC.value else Level.INTERMEDIATE
+        self.game.choose_new_answer(level)
+        self.entry.config(state=tk.NORMAL)
+        self.message_label.config(text="")
+        self._reset_timer()
+        self._refresh_all()
+
+    def _on_guess(self) -> None:
+        text = self.entry.get().strip()
+        self.entry.delete(0, tk.END)
+        if not text:
+            return
+        if len(text) != 1 or not text.isalpha():
+            messagebox.showinfo("Invalid", "Please enter a single alphabetic letter (a-z).")
+            return
+
+        try:
+            correct, positions = self.game.guess_letter(text)
+        except ValueError as e:
+            messagebox.showinfo("Invalid", str(e))
+            return
+
+        if correct:
+            self.message_label.config(
+                text=f"Nice! The letter '{text.lower()}' is in the answer at {len(positions)} position(s).",
+                fg="green"
+            )
+        else:
+            self.message_label.config(text=f"Oops! The letter '{text.lower()}' is not in the answer.", fg="red")
+            self._draw_hangman_stage()
+
+        self._refresh_labels()
+        self._check_end_state()
+        self._reset_timer()
+
+    # Redraw hangman based on lives left
+    def _reset_timer(self) -> None:
+        if self.timer_job is not None:
+            self.after_cancel(self.timer_job)
+            self.timer_job = None
+        self.timer_seconds = GUESS_SECONDS
+        self.timer_label.config(text=f"Time left: {self.timer_seconds}s")
+        self.timer_job = self.after(1000, self._tick)
+
+    def _tick(self) -> None:
+        self.timer_seconds -= 1
+        self.timer_label.config(text=f"Time left: {self.timer_seconds}s")
+        if self.game.is_won() or self.game.is_lost():
+            return
+        if self.timer_seconds <= 0:
+            self.game.attempts_left -= 1
+            self.message_label.config(text="Time's up! Life deducted.", fg="orange")
+            self._draw_hangman_stage()
+            self._refresh_labels()
+            self._check_end_state()
+            self._reset_timer()
+            return
+        self.timer_job = self.after(1000, self._tick)
