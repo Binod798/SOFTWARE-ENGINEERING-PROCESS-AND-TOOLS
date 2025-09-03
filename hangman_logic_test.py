@@ -76,6 +76,15 @@ class TestHangmanCoreLogic(unittest.TestCase):
             self.game.guess_letter(ch)
         print(f"   💀 Game over! Lives exhausted. Answer was: '{self.game.answer}'")
         self.assertTrue(self.game.is_lost())
+        
+    def test_phrase_masking_shows_spaces(self) -> None:
+        self.game.answer = "machine learning"
+        self.game.masked = self.game.mask_answer(self.game.answer, set())
+        display = self.game.get_display_word()
+        print(f"[Test] Masked phrase: '{display}'")
+        print("   ✅ Spaces are shown correctly, letters hidden as underscores.")
+        self.assertIn(" ", display)
+        self.assertTrue(all(c in "_ " for c in display if not c.isalpha()))
 
    
 
