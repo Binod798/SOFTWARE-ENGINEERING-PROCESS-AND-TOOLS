@@ -57,6 +57,25 @@ class TestHangmanCoreLogic(unittest.TestCase):
         print(f"   🔄 Second guess ignored. Lives still: {self.game.attempts_left}")
         self.assertFalse(ok2)
         self.assertEqual(self.game.attempts_left, lives_after_first)
+    
+    def test_win_condition(self) -> None:
+        self.game.answer = "ai"
+        self.game.masked = self.game.mask_answer(self.game.answer, set())
+        self.game.guess_letter('a')
+        self.game.guess_letter('i')
+        print(f"[Test] Guessing all letters in '{self.game.answer}'...")
+        print("   🎉 Congratulations! You guessed the word correctly.")
+        self.assertTrue(self.game.is_won())
+        self.assertFalse(self.game.is_lost())
+
+    def test_lose_condition(self) -> None:
+        self.game.answer = "cloud"
+        self.game.masked = self.game.mask_answer(self.game.answer, set())
+        print(f"[Test] Making wrong guesses to lose the game for '{self.game.answer}'...")
+        for ch in "abefgh":
+            self.game.guess_letter(ch)
+        print(f"   💀 Game over! Lives exhausted. Answer was: '{self.game.answer}'")
+        self.assertTrue(self.game.is_lost())
 
    
 
