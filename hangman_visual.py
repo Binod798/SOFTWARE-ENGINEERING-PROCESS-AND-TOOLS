@@ -190,3 +190,63 @@ class HangmanApp(tk.Tk):
             self._reset_timer()
             return
         self.timer_job = self.after(1000, self._tick)
+        
+    # Refresh all UI elements
+    def _refresh_all(self) -> None:
+        self._clear_canvas()
+        self._draw_gallows()
+        self._draw_hangman_stage()
+        self._refresh_labels()
+
+    def _refresh_labels(self) -> None:
+        self.word_label.config(text=self.game.get_display_word())
+        self.lives_label.config(text=f"Lives: {self.game.attempts_left}")
+        guessed = ", ".join(sorted(self.game.guessed_letters)) if self.game.guessed_letters else "—"
+        self.guessed_label.config(text=f"Guessed: {guessed}")
+
+    def _check_end_state(self) -> None:
+        if self.game.is_won():
+            self.message_label.config(text="🎉 You guessed it! Press 'New Game' to play again.", fg="green")
+            self._stop_timer()
+            self.game.reveal_all()
+            self._refresh_labels()
+            self.entry.config(state=tk.DISABLED)
+        elif self.game.is_lost():
+            self.message_label.config(text=f"💀 Game over! The answer was: '{self.game.answer}'.", fg="red")
+            self._stop_timer()
+            self.game.reveal_all()
+            self._refresh_labels()
+            self.entry.config(state=tk.DISABLED)
+        else:
+            self.entry.config(state=tk.NORMAL)
+
+    def _stop_timer(self) -> None:
+        if self.timer_job is not None:
+            self.after_cancel(self.timer_job)
+            self.timer_job = None
+
+  
+
+    def _clear_canvas(self) -> None:
+        self.canvas.delete("all")
+
+    def _draw_gallows(self) -> None:
+        self.canvas.create_line(50, 380, 350, 380, width=3)   # base
+        self.canvas.create_line(100, 380, 100, 80, width=3)   # vertical
+        self.canvas.create_line(100, 80, 260, 80, width=3)    # top
+        self.canvas.create_line(260, 80, 260, 130, width=3)   # rope
+
+    def _draw_hangman_stage(self) -> None:
+        stage = self.game.max_attempts - self.game.attempts_left
+        if stage >= 1:
+            self.canvas.create_oval(230, 130, 290, 190, width=3)  # head
+        if stage >= 2:
+            self.canvas.create_line(260, 190, 260, 260, width=3)  # body
+        if stage >= 3:
+            self.canvas.create_line(260, 210, 230, 240, width=3)  # left arm
+        if stage >= 4:
+            self.canvas.create_line(260, 210, 290, 240, width=3)  # right arm
+        if stage >= 5:
+            self.canvas.create_line(260, 260, 235, 310, width=3)  # left leg
+        if stage >= 6:
+            self.canvas.create_line(260, 260, 285, 310, width=3)  # right leg
