@@ -17,7 +17,23 @@ class TestHangmanCoreLogic(unittest.TestCase):
         self.game.choose_new_answer(Level.BASIC)
         print(f"[Test] New BASIC level word selected: '{self.game.answer}'")
         self.assertIn(self.game.answer, TECH_WORDS)
-        print("✅ The word is valid and comes from the BASIC dictionary.")
+        print("✅ The word is valid and comes from the BASIC dictionary.")        
+    
+    def test_choose_new_answer_intermediate(self) -> None:
+        self.game.choose_new_answer(Level.INTERMEDIATE)
+        print(f"[Test] New INTERMEDIATE level phrase selected: '{self.game.answer}'")
+        self.assertIn(self.game.answer, TECH_PHRASES)
+        print("✅ The phrase is valid and comes from the INTERMEDIATE dictionary.")
+
+    def test_correct_guess_reveals_all_positions(self) -> None:
+        self.game.answer = "protocol"
+        self.game.masked = self.game.mask_answer(self.game.answer, set())
+        ok, positions = self.game.guess_letter('o')
+        print(f"[Test] Guessing the letter 'o' in '{self.game.answer}'...")
+        print(f"   🎯 Correct! The letter 'o' appears {len(positions)} time(s) at positions {positions}.")
+        self.assertTrue(ok)
+        self.assertEqual(positions, [2, 4, 6])
+        print(f"   ✅ Current word display: {self.game.get_display_word()}")
 
    
 
