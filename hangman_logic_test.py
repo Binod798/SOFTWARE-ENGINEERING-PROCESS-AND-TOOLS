@@ -17,11 +17,7 @@ TECH_PHRASES = [
     "software engineering", "unit testing",
     "version control", "data structures",
 ]
-
-class Level(Enum):
-    BASIC = "basic"
-    INTERMEDIATE = "intermediate"
-    
+   
 class Level(Enum):
     BASIC = "basic"
     INTERMEDIATE = "intermediate"
