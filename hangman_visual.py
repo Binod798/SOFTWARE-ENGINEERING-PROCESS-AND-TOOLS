@@ -70,5 +70,49 @@ class HangmanApp(tk.Tk):
         # New Game button of the game
         tk.Button(top, text="New Game", command=self._new_game).pack(side=tk.LEFT, padx=10)
 
-        # Spacer
+        # Spacer between left and right
         tk.Label(top, text=" " * 5).pack(side=tk.LEFT)
+        
+         # Lives and timer display
+        self.lives_label = tk.Label(top, text="Lives: 6", font=("Arial", 12, "bold"))
+        self.lives_label.pack(side=tk.LEFT, padx=10)
+
+        self.timer_label = tk.Label(top, text=f"Time left: {GUESS_SECONDS}s", font=("Arial", 12))
+        self.timer_label.pack(side=tk.LEFT, padx=10)
+
+        # Guessed letters display
+        self.guessed_label = tk.Label(top, text="Guessed: —")
+        self.guessed_label.pack(side=tk.RIGHT, padx=12)
+
+    def _build_main_area(self) -> None:
+        body = tk.Frame(self)
+        body.pack(fill=tk.BOTH, expand=True)
+
+        # Left: Canvas for hangman drawing
+        self.canvas = tk.Canvas(body, width=400, height=420, bg="white")
+        self.canvas.pack(side=tk.LEFT, padx=20, pady=10)
+
+        # Right: Word display and controls
+        right = tk.Frame(body)
+        right.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        self.word_label = tk.Label(right, text="_", font=("Consolas", 24))
+        self.word_label.pack(pady=(20, 10))
+
+        entry_row = tk.Frame(right)
+        entry_row.pack(pady=5)
+        tk.Label(entry_row, text="Your guess (a-z): ").pack(side=tk.LEFT)
+        self.entry = tk.Entry(entry_row, width=5, font=("Consolas", 18))
+        self.entry.pack(side=tk.LEFT)
+        tk.Button(entry_row, text="Guess", command=self._on_guess).pack(side=tk.LEFT, padx=6)
+
+        self.message_label = tk.Label(right, text="", fg="blue")
+        self.message_label.pack(pady=10)
+
+        # Footer with tips
+        self.footer_label = tk.Label(
+            right,
+            text="Tip: press Enter to submit a guess • Repeated guesses are ignored without penalty.",
+            fg="gray",
+        )
+        self.footer_label.pack(side=tk.BOTTOM, pady=10)
