@@ -250,3 +250,7 @@ class HangmanApp(tk.Tk):
             self.canvas.create_line(260, 260, 235, 310, width=3)  # left leg
         if stage >= 6:
             self.canvas.create_line(260, 260, 285, 310, width=3)  # right leg
+            
+if __name__ == "__main__":
+    app = HangmanApp()
+    app.mainloop()
