@@ -87,22 +87,22 @@ class HangmanGame:
             return False, []
 
     def is_won(self):
-        """Check if all letters are revealed."""
+        # Check if all letters are revealed
         return all(
             (not ch.isalpha()) or (self.masked[i] == ch)
             for i, ch in enumerate(self.answer)
         )
 
     def is_lost(self):
-        """Check if lives are zero."""
+        # Check if lives are zero
         return self.attempts_left <= 0
 
     def get_display_word(self):
-        """Return masked word as string."""
+        # Return masked word as string
         return " ".join(self.masked)
 
     def reveal_all(self):
-        """Show the full answer (end of game)."""
+        # Show the full answer if the game is ended
         self.masked = list(self.answer)
 
 
